@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2020 Aljoscha Grebe
+ * Copyright 2023 Maxim Pavlov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +38,8 @@ import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.project.ProjectManager
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.apache.commons.lang3.time.DurationFormatUtils
 import java.awt.Color
 import java.awt.Font
@@ -54,6 +57,8 @@ class PreviewRenderer {
     private val height = 273
 
     private var image: BufferedImage = createImage(width, height)
+
+    private val drawMutex = Mutex()
 
     val dummy by lazy lazy@{
         val image = createImage(width, height)
@@ -89,20 +94,21 @@ class PreviewRenderer {
     private val font14BoldMaxHeight: Int = font14BoldMetrics.maxAscent + font14BoldMetrics.leading + font14BoldMetrics.maxDescent
     private val font14MediumMaxHeight: Int = font14MediumMetrics.maxAscent + font14MediumMetrics.leading + font14MediumMetrics.maxDescent
 
-    @Synchronized
     suspend fun draw(type: Renderer.Type.Application, force: Boolean = false): ModifiedImage {
-        val data = dataService
-            .getData(Renderer.Mode.PREVIEW)
-            ?.completeMissingData()
-            ?: return ModifiedImage(false, image)
+        drawMutex.withLock {
+            val data = dataService
+                .getData(Renderer.Mode.PREVIEW)
+                ?.completeMissingData()
+                ?: return ModifiedImage(false, image)
 
-        val context = RenderContext(sourceService.source, data, Renderer.Mode.PREVIEW)
-        val renderer = type.createRenderer(context)
-        val presence = renderer.render()
+            val context = RenderContext(sourceService.source, data, Renderer.Mode.PREVIEW)
+            val renderer = type.createRenderer(context)
+            val presence = renderer.render()
 
-        val modified = user.draw(image, force) or game.draw(image, presence, force)
+            val modified = user.draw(image, force) or game.draw(image, presence, force)
 
-        return ModifiedImage(modified, image)
+            return ModifiedImage(modified, image)
+        }
     }
 
     private inner class User {

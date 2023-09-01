@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2020 Aljoscha Grebe
+ * Copyright 2023 Maxim Pavlov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +17,12 @@
 
 package com.almightyalpaca.jetbrains.plugins.discord.plugin.time
 
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManagerListener
+import com.intellij.openapi.startup.StartupActivity
 
-class TimeProjectManagerListener : ProjectManagerListener {
-    override fun projectOpened(project: Project) {
+class TimeProjectManagerListener : StartupActivity, DumbAware {
+    override fun runActivity(project: Project) {
         if (!project.isDefault)
             timeService.initializeProject(project)
     }

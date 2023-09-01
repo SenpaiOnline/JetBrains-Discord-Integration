@@ -3,31 +3,30 @@ antlr                       = "4.11.1"
 commons-io                  = "2.11.0"
 commons-lang                = "3.12.0"
 commons-text                = "1.10.0"
-discord-ipc                 = "09bc0cc"
+discord-ipc                 = "0.2.1"
 discord-rpc                 = "2.0.2"
 docker                      = "3.2.13"
 gitversion                  = "0.15.0"
-gradle                      = "7.4.2"
 guava                       = "31.1-jre"
-ide                         = "2022.3"
-#ide                         = "LATEST-EAP-SNAPSHOT"
-intellij                    = "1.10.1"
+intellij                    = "1.15.0"
 jackson                     = "2.13.4"
 jda                         = "4.4.0_352"
 junit                       = "5.9.1"
 junit-jupiter               = "5.9.1"
 konf                        = "1.1.2"
 kotlin-ide                  = "1.7.20"
-kotlin-latest               = "1.7.20"
+kotlin-latest               = "1.9.10"
 kotlinx-coroutines-ide      = "1.5.0"
-kotlinx-coroutines-latest   = "1.6.4"
-ktor                        = "2.1.3"
+kotlinx-coroutines-latest   = "1.7.3"
+ktor                        = "2.3.3"
 logback                     = "1.4.4"
-okhttp3                     = "4.10.0"
+okhttp3                     = "4.11.0"
 pngtastic                   = "1.7"
 shadow                      = "7.0.0"
 versions                    = "0.43.0"
 zeroAllocationHashing       = "0.16"
+changelog                   = "2.1.2"
+junixsocket                 = "2.7.0"
 
 [libraries]
 antlr                                   = { group = "org.antlr", name = "antlr4", version.ref = "antlr" }
@@ -70,6 +69,7 @@ logback                                 = { group = "ch.qos.logback", name = "lo
 okhttp3                                 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp3" }
 pngtastic                               = { group = "com.github.depsypher", name = "pngtastic", version.ref = "pngtastic" }
 zeroAllocationHashing                   = { group = "net.openhft", name = "zero-allocation-hashing", version.ref = "zeroAllocationHashing" }
+junixsocket-core                        = { group = "com.kohlschutter.junixsocket", name = "junixsocket-core", version.ref = "junixsocket" }
 
 [plugins]
 docker          = { id = "docker" }
@@ -78,3 +78,4 @@ intellij        = { id = "org.jetbrains.intellij", version.ref = "intellij" }
 kotlin          = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-latest" }
 shadow          = { id = "com.github.johnrengelman.shadow" }
 versions        = { id = "com.github.ben-manes.versions", version.ref = "versions" }
+changelog       = { id = "org.jetbrains.changelog", version.ref = "changelog" }

@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2020 Aljoscha Grebe
+ * Copyright 2023 Maxim Pavlov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +18,26 @@
 @file:Suppress("SuspiciousCollectionReassignment")
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.changelog.markdownToHTML
 import org.jsoup.Jsoup
 
 plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.intellij)
-
+    alias(libs.plugins.changelog)
     antlr
 }
 
-val github = "https://github.com/Almighty-Alpaca/JetBrains-Discord-Integration"
+fun properties(key: String) = providers.gradleProperty(key)
+fun environment(key: String) = providers.environmentVariable(key)
 
 dependencies {
     implementation(project(path = ":icons", configuration = "minimizedJar"))
 
-    implementation(libs.discord.ipc)
+    implementation(libs.junixsocket.core)
+    implementation(libs.discord.ipc) {
+        exclude("com.kohlschutter.junixsocket", "junixsocket-core")
+    }
     implementation(libs.discord.rpc)
 
     implementation(libs.commons.io)
@@ -41,6 +47,7 @@ dependencies {
     antlr(libs.antlr)
     implementation(libs.antlr.runtime)
 
+    testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
 }
@@ -64,19 +71,14 @@ sourceSets {
 val isCI by lazy { System.getenv("CI") != null }
 
 intellij {
-    pluginName(rootProject.name)
-
-    version(libs.versions.ide)
-
+    pluginName(properties("pluginName"))
+    version(properties("platformVersion"))
+    type(properties("platformType"))
     downloadSources(!isCI)
-
-    updateSinceUntilBuild(false)
-
+//    updateSinceUntilBuild(false)
     sandboxDir("${project.rootDir.absolutePath}/.sandbox")
-
-    instrumentCode(false)
-
-    plugins("vcs-git")
+//    instrumentCode(false)
+    plugins.set(properties("platformPlugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) })
 
     // For testing with a custom theme
     // plugins("com.chrisrm.idea.MaterialThemeUI:3.10.0")
@@ -94,8 +96,6 @@ configurations {
         exclude("org.jetbrains.kotlin", "kotlin-stdlib-common")
         exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk7")
         exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
-        exclude("org.jetbrains.kotlin", "kotlin-test")
-        exclude("org.jetbrains.kotlin", "kotlin-test-common")
         exclude("org.jetbrains.kotlinx", "kotlinx-coroutines-core")
         exclude("org.jetbrains.kotlinx", "kotlinx-coroutines-core-common")
         exclude("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8")
@@ -119,6 +119,23 @@ tasks {
     }
 
     patchPluginXml {
+        version(properties("pluginVersion"))
+        sinceBuild(properties("pluginSinceBuild"))
+        untilBuild(properties("pluginUntilBuild"))
+
+        // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
+        /*pluginDescription.set(providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
+            val start = "<!-- Plugin description -->"
+            val end = "<!-- Plugin description end -->"
+
+            with (it.lines()) {
+                if (!containsAll(listOf(start, end))) {
+                    throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
+                }
+                subList(indexOf(start) + 1, indexOf(end)).joinToString("\n").let(::markdownToHTML)
+            }
+        })*/
+
         changeNotes(readInfoFile(project.file("changelog.md")))
         pluginDescription(readInfoFile(project.file("description.md")))
     }
@@ -226,10 +243,15 @@ tasks {
 
         maxHeapSize = "1G"
     }
+
+    compileTestKotlin {
+        dependsOn(generateTestGrammarSource)
+    }
 }
 
 fun readInfoFile(file: File): String {
     operator fun MatchResult.get(i: Int) = groupValues[i]
+    val repoUrl = properties("pluginRepositoryUrl")
 
     return file.readText()
         // Remove unnecessary whitespace
@@ -240,7 +262,7 @@ fun readInfoFile(file: File): String {
 
         // Replace issue links
         .replace(Regex("\\[([^\\[]+)\\]\\(([^\\)]+)\\)")) { match -> "<a href=\"${match[2]}\">${match[1]}</a>" }
-        .replace(Regex("\\(#([0-9]+)\\)")) { match -> "(<a href=\"$github/issues/${match[1]}\">#${match[1]}</a>)" }
+        .replace(Regex("\\(#([0-9]+)\\)")) { match -> "(<a href=\"$repoUrl/issues/${match[1]}\">#${match[1]}</a>)" }
 
         // Replace inner lists
         .replace(Regex("\r?\n  - (.*)")) { match -> "<li>${match[1]}</li>" }

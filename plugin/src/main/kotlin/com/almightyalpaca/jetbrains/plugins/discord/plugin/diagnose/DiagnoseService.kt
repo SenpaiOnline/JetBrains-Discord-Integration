@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2020 Aljoscha Grebe
+ * Copyright 2023 Maxim Pavlov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,9 +166,9 @@ class DiagnoseService : DisposableCoroutineScope {
     // override fun reportInternetConnectionChange() = TODO("not implemented")
 
     enum class Discord(val message: String) {
-        SNAP("It seems like Discord is running in a Snap package. This will most likely prevent the plugin from connecting to your Discord client!"),
-        FLATPAK("It seems like Discord is running in a Flatpak package. This will most likely prevent the plugin from connecting to your Discord client!"),
-        BROWSER("It seems like Discord is running in the browser. The plugin will not be able to connect to the Discord client!"),
+        SNAP("It seems like Discord is running in a Snap package.<br/>This will most likely prevent the plugin from connecting to your Discord client!"),
+        FLATPAK("It seems like Discord is running in a Flatpak package.<br/>This will most likely prevent the plugin from connecting to your Discord client!"),
+        BROWSER("It seems like Discord is running in the browser.<br/>The plugin will not be able to connect to the Discord client!"),
         CLOSED("Could not detect a running Discord client!"),
         OTHER("")
     }
@@ -179,7 +180,7 @@ class DiagnoseService : DisposableCoroutineScope {
     }
 
     enum class Ide(val message: String) {
-        SNAP("${ApplicationNamesInfo.getInstance().fullProductName} is running as a Snap package. This will most likely prevent the plugin from connection to your Discord client!"),
+        SNAP("${ApplicationNamesInfo.getInstance().fullProductName} is running as a Snap package.<br/>This will most likely prevent the plugin from connection to your Discord client!"),
         OTHER("")
     }
 }

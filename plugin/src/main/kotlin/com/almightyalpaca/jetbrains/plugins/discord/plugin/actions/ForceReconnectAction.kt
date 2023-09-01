@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2020 Aljoscha Grebe
+ * Copyright 2023 Maxim Pavlov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +23,7 @@ import com.almightyalpaca.jetbrains.plugins.discord.plugin.rpc.rpcService
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAwareAction
 
-class ForceReconnectAction : DumbAwareAction("Force reconnect") {
+class ForceReconnectAction : DumbAwareAction("Force Reconnect") {
     override fun actionPerformed(e: AnActionEvent) {
         DiscordPlugin.LOG.info("Forcing manual reconnect")
 

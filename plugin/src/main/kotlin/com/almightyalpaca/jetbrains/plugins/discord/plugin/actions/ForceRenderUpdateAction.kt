@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2020 Aljoscha Grebe
+ * Copyright 2023 Maxim Pavlov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +22,7 @@ import com.almightyalpaca.jetbrains.plugins.discord.plugin.render.renderService
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAwareAction
 
-class ForceRenderUpdateAction : DumbAwareAction("Force render update") {
+class ForceRenderUpdateAction : DumbAwareAction("Force Render Update") {
     override fun actionPerformed(e: AnActionEvent) {
         DiscordPlugin.LOG.info("Forcing manual render")
 

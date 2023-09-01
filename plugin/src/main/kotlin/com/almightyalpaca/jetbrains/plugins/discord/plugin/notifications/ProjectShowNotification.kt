@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2020 Aljoscha Grebe
+ * Copyright 2023 Maxim Pavlov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,15 +30,12 @@ private const val title = "Show project in Rich Presence?"
 private const val content =
     "Select if this project should be visible. You can change this later at any time under Settings > Other Settings > Discord > Project"
 
-private val group = NotificationGroup(
-    "${Plugin.getId()}.project.show",
-    NotificationDisplayType.STICKY_BALLOON,
-    true
-)
-
 object ProjectShowNotification {
     suspend fun show(project: Project) = suspendCoroutine<ProjectShow> { continuation ->
-        group.createNotification(title, content, NotificationType.INFORMATION)
+        NotificationGroupManager
+            .getInstance()
+            .getNotificationGroup("online.senpai.jetbrains.plugins.discord.notification.project.show")
+            .createNotification(title, content, NotificationType.INFORMATION)
             .apply {
                 collapseDirection = Notification.CollapseActionsDirection.KEEP_LEFTMOST
                 for (value in project.settings.show.selectableValues) {
@@ -46,6 +44,9 @@ object ProjectShowNotification {
                         continuation.resume(value)
                     })
                 }
-            }.run { Notifications.Bus.notify(this, project) }
+            }
+            .run {
+                Notifications.Bus.notify(this, project)
+            }
     }
 }

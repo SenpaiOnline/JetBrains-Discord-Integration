@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2020 Aljoscha Grebe
+ * Copyright 2023 Maxim Pavlov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +23,19 @@ import groovy.lang.Closure
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.nio.file.Files
 
+fun properties(key: String) = providers.gradleProperty(key)
+fun environment(key: String) = providers.environmentVariable(key)
+
 plugins {
     alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.versions)
     alias(libs.plugins.gitversion)
 }
 
-group = "com.almightyalpaca.jetbrains.plugins.discord"
+group = properties("pluginGroup").get()
+version = properties("pluginVersion").get()
 
-val versionDetails: Closure<VersionDetails> by extra
+val versionDetails: Closure<VersionDetails> by project.extra
 
 var version = versionDetails().lastTag.removePrefix("v")
 version += when (versionDetails().commitDistance) {
@@ -43,6 +48,7 @@ project.version = version
 allprojects {
     repositories {
         mavenCentral()
+        maven(url = "https://jitpack.io")
     }
 
     fun secret(name: String) {
@@ -67,7 +73,7 @@ subprojects {
         withType<KotlinCompile> {
             kotlinOptions {
                 jvmTarget = "17"
-                freeCompilerArgs += "-Xjvm-default=enable"
+                freeCompilerArgs += "-Xjvm-default=all"
 
                 apiVersion = kotlinLanguageVersion(libs.versions.kotlin.ide())
                 languageVersion = kotlinLanguageVersion(libs.versions.kotlin.ide())
@@ -77,10 +83,6 @@ subprojects {
         withType<JavaCompile> {
             targetCompatibility = "17"
             sourceCompatibility = "17"
-
-            if (JavaVersion.current() >= JavaVersion.VERSION_1_9) {
-                options.compilerArgs as MutableList<String> += listOf("--release", "17")
-            }
         }
     }
 }
@@ -102,8 +104,10 @@ tasks {
     }
 
     withType<Wrapper> {
+        val versionGradle: String by project
+
         distributionType = Wrapper.DistributionType.BIN
-        gradleVersion = libs.versions.gradle()
+        gradleVersion = properties("gradleVersion").get()
     }
 
     create<Delete>("clean") {

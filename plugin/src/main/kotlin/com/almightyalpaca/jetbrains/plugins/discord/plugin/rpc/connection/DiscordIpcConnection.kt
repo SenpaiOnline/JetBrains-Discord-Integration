@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2020 Aljoscha Grebe
+ * Copyright 2023 Maxim Pavlov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +22,10 @@ import com.almightyalpaca.jetbrains.plugins.discord.plugin.rpc.RichPresence
 import com.almightyalpaca.jetbrains.plugins.discord.plugin.rpc.User
 import com.almightyalpaca.jetbrains.plugins.discord.plugin.rpc.UserCallback
 import com.almightyalpaca.jetbrains.plugins.discord.plugin.utils.DisposableCoroutineScope
+import com.almightyalpaca.jetbrains.plugins.discord.plugin.utils.debugLazy
 import com.almightyalpaca.jetbrains.plugins.discord.plugin.utils.errorLazy
 import dev.cbyrne.kdiscordipc.KDiscordIPC
+import dev.cbyrne.kdiscordipc.core.error.ConnectionError
 import dev.cbyrne.kdiscordipc.core.event.impl.CurrentUserUpdateEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ErrorEvent
 import dev.cbyrne.kdiscordipc.core.event.impl.ReadyEvent
@@ -30,15 +33,17 @@ import dev.cbyrne.kdiscordipc.data.activity.activity
 import dev.cbyrne.kdiscordipc.data.activity.largeImage
 import dev.cbyrne.kdiscordipc.data.activity.smallImage
 import dev.cbyrne.kdiscordipc.data.activity.timestamps
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlin.time.Duration.Companion.seconds
 import dev.cbyrne.kdiscordipc.data.user.User as NativeUser
 
-class DiscordIpcConnection(override val appId: Long, private val userCallback: UserCallback) :
-    DiscordConnection, DisposableCoroutineScope {
+private val RETRY_TIME = 5.seconds
+
+class DiscordIpcConnection(
+    override val appId: Long, private val userCallback: UserCallback
+) : DiscordConnection, DisposableCoroutineScope {
     override val parentJob: Job = SupervisorJob()
+    private var currentIpcJob: Job? = null
 
     private var ipcClient: KDiscordIPC = KDiscordIPC(appId.toString()).apply {
         // listening to an event doesn't actually do anything async, so we can just block here
@@ -53,11 +58,30 @@ class DiscordIpcConnection(override val appId: Long, private val userCallback: U
     override val running by ipcClient::connected
 
     override suspend fun connect() {
-        if (!ipcClient.connected) {
+        if (currentIpcJob == null || currentIpcJob?.isActive == false) {
             DiscordPlugin.LOG.debug("Starting new ipc connection")
 
-            launch { ipcClient.connect() }
-
+            currentIpcJob = launch(CoroutineName("ipcJob")) {
+                while (isActive) {
+                    try {
+                        ipcClient.connect()
+                    } catch (e: ConnectionError.Disconnected) {
+                        DiscordPlugin.LOG.debug(e.message)
+                        ipcClient.disconnect()
+                        userCallback(null)
+                        delay(RETRY_TIME)
+                    } catch (e: ConnectionError.NoIPCFile) {
+                        delay(RETRY_TIME)
+                    } catch (e: ConnectionError.Failed) {
+                        DiscordPlugin.LOG.debug(e.message)
+                        delay(RETRY_TIME)
+                    }
+                }
+            }.apply {
+                invokeOnCompletion { cause: Throwable? ->
+                    DiscordPlugin.LOG.debugLazy { "IPC job is completed, cause: $cause" }
+                }
+            }
             DiscordPlugin.LOG.debug("Started new ipc connection")
         }
     }
@@ -65,8 +89,7 @@ class DiscordIpcConnection(override val appId: Long, private val userCallback: U
     override suspend fun send(presence: RichPresence?) {
         DiscordPlugin.LOG.debug("Sending new presence")
 
-        if (running)
-            ipcClient.activityManager.setActivity(presence?.toNative())
+        if (running) ipcClient.activityManager.setActivity(presence?.toNative())
     }
 
     override suspend fun disconnect() = disconnectInternal()
@@ -120,13 +143,12 @@ private fun RichPresence.toNative() = activity(
 
     this@toNative.startTimestamp?.let {
         this.timestamps(
-            start = it.toEpochSecond(),
-            end = this@toNative.endTimestamp?.toEpochSecond()
+            start = it.toEpochSecond(), end = this@toNative.endTimestamp?.toEpochSecond()
         )
     }
 
-    this@toNative.largeImage?.key?.let { this.largeImage(it, this@toNative.largeImage?.text ?: "") }
-    this@toNative.smallImage?.key?.let { this.smallImage(it, this@toNative.smallImage?.text ?: "") }
+    this@toNative.largeImage?.key?.let { this.largeImage(it, this@toNative.largeImage?.text) }
+    this@toNative.smallImage?.key?.let { this.smallImage(it, this@toNative.smallImage?.text) }
 
     this.instance = this@toNative.instance
 }

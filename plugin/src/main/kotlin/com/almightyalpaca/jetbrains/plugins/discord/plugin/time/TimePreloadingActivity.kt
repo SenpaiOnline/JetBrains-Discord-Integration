@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2020 Aljoscha Grebe
+ * Copyright 2023 Maxim Pavlov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +17,15 @@
 
 package com.almightyalpaca.jetbrains.plugins.discord.plugin.time
 
-import com.intellij.openapi.application.PreloadingActivity
+import com.intellij.ide.ApplicationInitializedListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Suppress("UnstableApiUsage")
-class TimePreloadingActivity : PreloadingActivity() {
-    @Suppress("MissingRecentApi")
-    override fun preload() {
-        timeService.load()
+class TimePreloadingActivity : ApplicationInitializedListener {
+    override suspend fun execute(asyncScope: CoroutineScope) {
+        asyncScope.launch {
+            timeService.load()
+        }
     }
 }

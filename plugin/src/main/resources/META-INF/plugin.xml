@@ -1,5 +1,6 @@
 <!--
   ~ Copyright 2017-2020 Aljoscha Grebe
+  ~ Copyright 2023 Maxim Pavlov
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,7 +20,7 @@
     <name>Discord Integration</name>
     <vendor email="aljoschagrebe@gmail.com" url="https://github.com/Almighty-Alpaca">Almighty Alpaca</vendor>
 
-    <idea-version since-build="223"/>
+    <idea-version since-build="223.7571.182"/>
 
     <depends>com.intellij.modules.lang</depends>
 
@@ -35,9 +36,6 @@
                 class="com.almightyalpaca.jetbrains.plugins.discord.plugin.time.TimeDynamicPluginListener"
                 topic="com.intellij.ide.plugins.DynamicPluginListener"/>
         -->
-        <listener
-                class="com.almightyalpaca.jetbrains.plugins.discord.plugin.time.TimeProjectManagerListener"
-                topic="com.intellij.openapi.project.ProjectManagerListener"/>
 
         <listener
                 class="com.almightyalpaca.jetbrains.plugins.discord.plugin.time.TimeFileEditorManagerListener"
@@ -45,6 +43,11 @@
     </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.time.TimeProjectManagerListener"/>
+
+        <notificationGroup displayType="STICKY_BALLOON" id="online.senpai.jetbrains.plugins.discord.notification.project.show"/>
+        <notificationGroup displayType="STICKY_BALLOON" id="online.senpai.jetbrains.plugins.discord.notification.update" isLogByDefault="true"/>
+
         <projectService
                 serviceInterface="com.almightyalpaca.jetbrains.plugins.discord.plugin.settings.ProjectSettings"
                 serviceImplementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.settings.impl.ProjectSettingsImpl"/>
@@ -70,11 +73,9 @@
         <backgroundPostStartupActivity
                 implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.notifications.NotificationPostStartupActivity"/>
 
-        <preloadingActivity implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.time.TimePreloadingActivity"/>
-
-        <preloadingActivity implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.diagnose.DiagnosePreloadingActivity"/>
-
-        <preloadingActivity implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.render.RenderPreloadingActivity"/>
+        <applicationInitializedListener implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.time.TimePreloadingActivity"/>
+        <applicationInitializedListener implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.diagnose.DiagnosePreloadingActivity"/>
+        <applicationInitializedListener implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.render.RenderPreloadingActivity"/>
     </extensions>
 
     <actions>
