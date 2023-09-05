@@ -1,3 +1,7 @@
+## [Unreleased]
+- Fixed compatibility with IntelliJ version 2023.2
+- Added the ability to automatically reconnect for IPC
+
 ## v1.11.0
 - Fix compatibility with IntelliJ version 2022.3
 
