@@ -84,6 +84,15 @@ intellij {
     // plugins("com.chrisrm.idea.MaterialThemeUI:3.10.0")
 }
 
+changelog {
+    groups.empty()
+    path.set(file("changelog.md").canonicalPath)
+    versionPrefix.set("v")
+    headerParserRegex.set(Regex("""v(\d+\.\d+\.\d+)"""))
+    version.set(properties("pluginVersion"))
+    repositoryUrl.set(properties("pluginRepositoryUrl"))
+}
+
 configurations {
     // https://github.com/gradle/gradle/issues/820
     api {
