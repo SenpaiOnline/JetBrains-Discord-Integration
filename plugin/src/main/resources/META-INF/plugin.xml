@@ -15,10 +15,10 @@
   ~ limitations under the License.
   -->
 
-<idea-plugin url="https://github.com/Almighty-Alpaca/JetBrains-Discord-Integration" require-restart="true">
-    <id>com.almightyalpaca.intellij.plugins.discord</id>
+<idea-plugin url="https://github.com/SenpaiOnline/JetBrains-Discord-Integration" require-restart="true">
+    <id>online.senpai.intellij.plugins.discord</id>
     <name>Discord Integration</name>
-    <vendor email="aljoschagrebe@gmail.com" url="https://github.com/Almighty-Alpaca">Almighty Alpaca</vendor>
+    <vendor email="maxpav137@gmail.com" url="https://github.com/aiscy">Maxim Pavlov</vendor>
 
     <idea-version since-build="223.7571.182"/>
 
@@ -28,39 +28,39 @@
 
     <applicationListeners>
         <listener
-                class="com.almightyalpaca.jetbrains.plugins.discord.plugin.development.PreventUnloadingDynamicPluginListener"
+                class="online.senpai.jetbrains.plugins.discord.plugin.development.PreventUnloadingDynamicPluginListener"
                 topic="com.intellij.ide.plugins.DynamicPluginListener"/>
 
         <!--
         <listener
-                class="com.almightyalpaca.jetbrains.plugins.discord.plugin.time.TimeDynamicPluginListener"
+                class="online.senpai.jetbrains.plugins.discord.plugin.time.TimeDynamicPluginListener"
                 topic="com.intellij.ide.plugins.DynamicPluginListener"/>
         -->
 
         <listener
-                class="com.almightyalpaca.jetbrains.plugins.discord.plugin.time.TimeFileEditorManagerListener"
+                class="online.senpai.jetbrains.plugins.discord.plugin.time.TimeFileEditorManagerListener"
                 topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
     </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">
-        <postStartupActivity implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.time.TimeProjectManagerListener"/>
+        <postStartupActivity implementation="online.senpai.jetbrains.plugins.discord.plugin.time.TimeProjectManagerListener"/>
 
         <notificationGroup displayType="STICKY_BALLOON" id="online.senpai.jetbrains.plugins.discord.notification.project.show"/>
         <notificationGroup displayType="STICKY_BALLOON" id="online.senpai.jetbrains.plugins.discord.notification.update" isLogByDefault="true"/>
 
         <projectService
-                serviceInterface="com.almightyalpaca.jetbrains.plugins.discord.plugin.settings.ProjectSettings"
-                serviceImplementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.settings.impl.ProjectSettingsImpl"/>
+                serviceInterface="online.senpai.jetbrains.plugins.discord.plugin.settings.ProjectSettings"
+                serviceImplementation="online.senpai.jetbrains.plugins.discord.plugin.settings.impl.ProjectSettingsImpl"/>
         <applicationService
-                serviceInterface="com.almightyalpaca.jetbrains.plugins.discord.plugin.settings.ApplicationSettings"
-                serviceImplementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.settings.impl.ApplicationSettingsImpl"/>
+                serviceInterface="online.senpai.jetbrains.plugins.discord.plugin.settings.ApplicationSettings"
+                serviceImplementation="online.senpai.jetbrains.plugins.discord.plugin.settings.impl.ApplicationSettingsImpl"/>
 
         <applicationConfigurable
                 groupId="other"
                 groupWeight="200"
                 displayName="Discord"
                 id="discord-application"
-                instance="com.almightyalpaca.jetbrains.plugins.discord.plugin.settings.ApplicationConfigurable"/>
+                instance="online.senpai.jetbrains.plugins.discord.plugin.settings.ApplicationConfigurable"/>
 
         <projectConfigurable
                 groupId="discord-application"
@@ -68,14 +68,14 @@
                 displayName="Project"
                 id="discord-project"
                 nonDefaultProject="false"
-                instance="com.almightyalpaca.jetbrains.plugins.discord.plugin.settings.ProjectConfigurable"/>
+                instance="online.senpai.jetbrains.plugins.discord.plugin.settings.ProjectConfigurable"/>
 
         <backgroundPostStartupActivity
-                implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.notifications.NotificationPostStartupActivity"/>
+                implementation="online.senpai.jetbrains.plugins.discord.plugin.notifications.NotificationPostStartupActivity"/>
 
-        <applicationInitializedListener implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.time.TimePreloadingActivity"/>
-        <applicationInitializedListener implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.diagnose.DiagnosePreloadingActivity"/>
-        <applicationInitializedListener implementation="com.almightyalpaca.jetbrains.plugins.discord.plugin.render.RenderPreloadingActivity"/>
+        <applicationInitializedListener implementation="online.senpai.jetbrains.plugins.discord.plugin.time.TimePreloadingActivity"/>
+        <applicationInitializedListener implementation="online.senpai.jetbrains.plugins.discord.plugin.diagnose.DiagnosePreloadingActivity"/>
+        <applicationInitializedListener implementation="online.senpai.jetbrains.plugins.discord.plugin.render.RenderPreloadingActivity"/>
     </extensions>
 
     <actions>
@@ -86,20 +86,20 @@
             <add-to-group group-id="ToolsMenu"/>
 
             <action id="DiscordActionGroup.ApplicationHideAction"
-                    class="com.almightyalpaca.jetbrains.plugins.discord.plugin.actions.ApplicationShowAction"/>
+                    class="online.senpai.jetbrains.plugins.discord.plugin.actions.ApplicationShowAction"/>
             <group id="DiscordActionGroup.ProjectShowAction"
-                   class="com.almightyalpaca.jetbrains.plugins.discord.plugin.actions.ProjectShowAction"/>
+                   class="online.senpai.jetbrains.plugins.discord.plugin.actions.ProjectShowAction"/>
 
             <separator/>
 
             <action id="DiscordActionGroup.RenderUpdateAction"
-                    class="com.almightyalpaca.jetbrains.plugins.discord.plugin.actions.ForceRenderUpdateAction"/>
+                    class="online.senpai.jetbrains.plugins.discord.plugin.actions.ForceRenderUpdateAction"/>
             <action id="DiscordActionGroup.ReconnectAction"
-                    class="com.almightyalpaca.jetbrains.plugins.discord.plugin.actions.ForceReconnectAction"/>
+                    class="online.senpai.jetbrains.plugins.discord.plugin.actions.ForceReconnectAction"/>
         </group>
     </actions>
 
     <extensionPoints>
-        <extensionPoint name="vcsInfo" interface="com.almightyalpaca.jetbrains.plugins.discord.plugin.extensions.VcsInfoExtension" dynamic="true"/>
+        <extensionPoint name="vcsInfo" interface="online.senpai.jetbrains.plugins.discord.plugin.extensions.VcsInfoExtension" dynamic="true"/>
     </extensionPoints>
 </idea-plugin>

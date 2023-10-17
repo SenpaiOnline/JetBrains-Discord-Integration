@@ -1,0 +1,38 @@
+/*
+ * Copyright 2017-2020 Aljoscha Grebe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package online.senpai.jetbrains.plugins.discord.plugin.utils
+
+import online.senpai.jetbrains.plugins.discord.plugin.DiscordPlugin
+import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.serviceContainer.AlreadyDisposedException
+
+inline fun <T> tryOrNull(print: Boolean = true, block: () -> T) = tryOrDefault(null, print, block)
+
+inline fun <T> tryOrDefault(default: T, print: Boolean = true, block: () -> T): T {
+    return try {
+        block()
+    } catch (e: ProcessCanceledException) {
+        throw e
+    } catch (e: Exception) {
+        // TODO: change to catch case once minimum IntelliJ version has been raised
+        if (print && e::class.simpleName != "AlreadyDisposedException") {
+            DiscordPlugin.LOG.error(e)
+        }
+
+        default
+    }
+}

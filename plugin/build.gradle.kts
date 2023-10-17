@@ -203,7 +203,7 @@ tasks {
     }
 
     generateGrammarSource {
-        val packageName = "com.almightyalpaca.jetbrains.plugins.discord.plugin.render.templates.antlr"
+        val packageName = "online.senpai.jetbrains.plugins.discord.plugin.render.templates.antlr"
 
         arguments = arguments + listOf("-package", packageName, "-no-listener")
         outputDirectory = generatedJavaSourceDir.resolve(packageName.replace('.', File.separatorChar))
